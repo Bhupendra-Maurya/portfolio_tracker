@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, message } from 'antd';
+import { Layout, Button, message, Form } from 'antd';
 import Dashboard from '../components/Dashboard';
 import StockList from '../components/StockList';
 import StockForm from '../components/StockForm';
 import type { Stock } from '../types/stock';
+import { mockApiCalls } from '../services/mockData';  // Import mock service
 
 const { Content } = Layout;
 
@@ -11,6 +12,7 @@ const PortfolioPage: React.FC = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStock, setEditingStock] = useState<Stock | undefined>();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchStocks();
@@ -18,8 +20,8 @@ const PortfolioPage: React.FC = () => {
 
   const fetchStocks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/stocks');
-      const data = await response.json();
+      // Use mock data instead of real API
+      const data = await mockApiCalls.fetchStocks();
       setStocks(data.stocks);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
@@ -28,6 +30,7 @@ const PortfolioPage: React.FC = () => {
   };
 
   const handleAddStock = () => {
+    form.resetFields();
     setEditingStock(undefined);
     setIsModalVisible(true);
   };
@@ -39,40 +42,42 @@ const PortfolioPage: React.FC = () => {
 
   const handleDeleteStock = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/stocks/${id}`, {
-        method: 'DELETE',
-      });
+      // Use mock delete
+      await mockApiCalls.deleteStock();
       message.success('Stock deleted successfully');
-      fetchStocks();
+      setStocks(stocks.filter(stock => stock.id !== id));
+    } 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    catch (error) {
       message.error('Failed to delete stock');
     }
   };
 
   const handleSubmit = async (values: Partial<Stock>) => {
     try {
-      const url = editingStock
-        ? `http://localhost:5000/api/stocks/${editingStock.id}`
-        : 'http://localhost:5000/api/stocks';
-      
-      const method = editingStock ? 'PUT' : 'POST';
-      
-      await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
+      if (editingStock) {
+        // Update existing stock
+        const updatedStock = await mockApiCalls.updateStock(editingStock.id, values);
+        setStocks(stocks.map(stock => 
+          stock.id === editingStock.id ? { ...stock, ...updatedStock } : stock
+        ));
+      } else {
+        // Add new stock
+        const newStock = await mockApiCalls.addStock(values);
+        setStocks([...stocks, newStock as Stock]);
+      }
 
       message.success(`Stock ${editingStock ? 'updated' : 'added'} successfully`);
       setIsModalVisible(false);
-      fetchStocks();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error(`Failed to ${editingStock ? 'update' : 'add'} stock`);
     }
+  };
+
+  const handleCancel = () => {
+    setEditingStock(undefined);
+    setIsModalVisible(false);
   };
 
   return (
@@ -96,7 +101,8 @@ const PortfolioPage: React.FC = () => {
           visible={isModalVisible}
           initialValues={editingStock}
           onSubmit={handleSubmit}
-          onCancel={() => setIsModalVisible(false)}
+          onCancel={handleCancel}
+          form={form}
         />
       </Content>
     </Layout>

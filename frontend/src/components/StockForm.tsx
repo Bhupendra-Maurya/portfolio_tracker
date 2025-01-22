@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Input, InputNumber, Modal } from 'antd';
+import React, { useEffect } from 'react';
+import { Form, Input, InputNumber, Modal, FormInstance } from 'antd';
 import type { Stock } from '../types/stock';
 
 interface StockFormProps {
@@ -7,6 +7,7 @@ interface StockFormProps {
   initialValues?: Partial<Stock>;
   onSubmit: (values: Partial<Stock>) => void;
   onCancel: () => void;
+  form: FormInstance;
 }
 
 const StockForm: React.FC<StockFormProps> = ({
@@ -14,14 +15,27 @@ const StockForm: React.FC<StockFormProps> = ({
   initialValues,
   onSubmit,
   onCancel,
+  form,
 }) => {
-  const [form] = Form.useForm();
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (visible) {
+      if (initialValues) {
+        form.setFieldsValue(initialValues);
+      } else {
+        form.resetFields();
+      }
+    } else {
+      // Always reset form when modal closes
+      form.resetFields();
+    }
+  }, [visible, initialValues, form]);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       onSubmit(values);
-      form.resetFields();
+      form.resetFields(); // Clear form after submission
     } catch (error) {
       console.error('Validation failed:', error);
     }
