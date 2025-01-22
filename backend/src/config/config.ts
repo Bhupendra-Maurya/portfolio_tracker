@@ -1,14 +1,12 @@
-import { config as conf } from "dotenv";
+import dotenv from "dotenv";
+dotenv.config();
 
-conf();
-
-const _config = {
-  SERVER_PORT: process.env.SERVER_PORT,
+export const config = {
+  DB_HOST: process.env.DB_HOST ,
+  DB_USER: process.env.DB_USER ,
+  DB_PASSWORD: process.env.DB_PASSWORD ,
   DB_NAME: process.env.DB_NAME,
-  DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: process.env.DB_PORT,
+  JWT_SECRET: process.env.JWT_SECRET ,
+  ALPHA_VANTAGE_API_KEY: process.env.ALPHA_VANTAGE_API_KEY ,
+  SERVER_PORT: process.env.SERVER_PORT ,
 };
-
-export const config = Object.freeze(_config);
