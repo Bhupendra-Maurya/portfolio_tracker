@@ -1,5 +1,11 @@
-const App = () => {
-  return <div></div>;
-};
+import PortfolioPage from "./pages/PortfolioPage"
 
-export default App;
+const App = () => {
+  return (
+    <div>
+      <PortfolioPage />
+    </div>
+  )
+}
+
+export default App

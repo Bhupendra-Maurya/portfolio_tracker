@@ -12,7 +12,9 @@ export const addStock = async (req: Request, res: Response, next: NextFunction) 
       throw createError(400, "Missing required fields");
     }
 
-    const stock = await Stock.create({ name, ticker, quantity, buyPrice });
+    const currentPrice = await StockApiService.getCurrentPrice(ticker);
+
+    const stock = await Stock.create({ name, ticker, quantity, buyPrice: currentPrice });
     res.status(201).json(stock);
   } catch (error) {
     next(error); // Pass error to global error handler

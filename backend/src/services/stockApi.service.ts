@@ -5,10 +5,6 @@ import { config } from "../config/config";
 const ALPHA_VANTAGE_API_KEY = config.ALPHA_VANTAGE_API_KEY;
 const BASE_URL = "https://www.alphavantage.co/query";
 
-export interface StockPrice {
-  symbol: string;
-  price: number;
-}
 
 interface AlphaVantageResponse {
   "Global Quote": {
@@ -23,10 +19,13 @@ export class StockApiService {
         params: {
           function: "GLOBAL_QUOTE",
           symbol,
-          interval: "5min",
+          interval: "30min",
+          datatype:"json",
           apikey: ALPHA_VANTAGE_API_KEY,
+          // apikey: "demo",
         },
       });
+      console.log(response.data)
       const price = response.data["Global Quote"]?.["05. price"];
       if (!price) {
         throw createError(404, `Price not found for ${symbol}`);
