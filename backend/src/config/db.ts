@@ -22,6 +22,7 @@ const sequelize = new Sequelize('portfolio_tracker', 'root', 'bhuppi', {
     host: 'localhost',
     dialect: 'mysql',
     port: 3306,
+    // logging: console.log // This helps debug SQL queries
 });
 
 export default sequelize;
